@@ -11,36 +11,23 @@ class medoo
 {
 	// General
 	protected $database_type;
-
 	protected $charset;
-
 	protected $database_name;
-
 	// For MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle
 	protected $server;
-
 	protected $username;
-
 	protected $password;
-
 	// For SQLite
 	protected $database_file;
-
 	// For MySQL or MariaDB with unix_socket
 	protected $socket;
-
 	// Optional
 	protected $port;
-
 	protected $prefix;
-
 	protected $option = array();
-
 	// Variable
 	protected $logs = array();
-
 	protected $debug_mode = false;
-
 	public function __construct($options = null)
 	{
 		try {
@@ -519,7 +506,7 @@ class medoo
 			{
 				$LIMIT = $where[ 'LIMIT' ];
 
-				if (is_numeric($LIMIT))
+				if (is_numeric($LIMIT)  && $this->database_type !== 'mssql')
 				{
 					$where_clause .= ' LIMIT ' . $LIMIT;
 				}
@@ -698,6 +685,12 @@ class medoo
 			$column = $this->column_push($columns);
 		}
 
+		 if ('mssql' === $this->database_type && isset($where['LIMIT'])	)
+			{
+				$limit = is_numeric($where['LIMIT']) ? $where['LIMIT'] : $where['LIMIT'][0];
+				$column = 'TOP (' . $limit . ') ' . $column;
+			}
+		
 		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->where_clause($where);
 	}
 
