@@ -28,6 +28,8 @@ class medoo
 	// Variable
 	protected $logs = array();
 	protected $debug_mode = false;
+        protected $distinct_mode = false;
+        
 	public function __construct($options = null)
 	{
 		try {
@@ -543,6 +545,12 @@ class medoo
 	{
 		preg_match('/([a-zA-Z0-9_\-]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $table, $table_match);
 
+                if($this->distinct_mode)
+                {
+                    $distinct = 'DISTINCT ';
+                } else {
+                    $distinct = '';
+                }
 		if (isset($table_match[ 1 ], $table_match[ 2 ]))
 		{
 			$table = $this->table_quote($table_match[ 1 ]);
@@ -691,7 +699,7 @@ class medoo
 				$column = 'TOP (' . $limit . ') ' . $column;
 			}
 		
-		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->where_clause($where);
+		return 'SELECT ' . $distinct . $column . ' FROM ' . $table_query . $this->where_clause($where);
 	}
 
 	protected function data_map($index, $key, $value, $data, &$stack)
@@ -1079,6 +1087,12 @@ class medoo
 
 		return $this;
 	}
+        
+        public function distinct()
+        {
+            $this->distinct_mode = true;
+            return $this;
+        }
 
 	public function error()
 	{
